@@ -25,7 +25,7 @@
    *        Call the plugin like this:
    *
    *        $('#sample-select').listToSelect({firstOptionText: 'Choose one:'});
-   * @version 1.0
+   * @version 1.1
    */
   $.fn.listToSelect = function(overrides) {
     // Default settings:
@@ -36,15 +36,16 @@
     return this.each(function(i,e){
       // Set up defaults:
       var settings = $.extend({}, defaults, overrides),
+          location = window.location.href,
           // Id attribute:
           $selectId = 'listToSelect-' + parseInt(i + 1, 10),
           // Form element, including required attributes:
           $form = $('<form id="' + $selectId + '" />')
-            .attr({action: window.location.href}),
+            .attr({action: location}),
           // Select element, including change listener and first (empty) option:
           $select = $('<select class="listToSelect" />')
             .change(function(){
-              window.location.href = $select.val();
+              location = $select.val();
             })
             .append('<option>' + settings.firstOptionText + '</option>'),
           // Store the current list for this request:
@@ -57,12 +58,16 @@
         // Loop through the links:
         $currentLinks
           .each(function(i,e){
-            // Store the current link for this iteration:
+            // Store the current link (and the href) for this iteration:
             var $currentLink = $(e),
+                $currentLinkHref = $currentLink.attr('href'),
                 // Create a new option element, complete with value and content:
                 $option = $('<option />')
-                  .attr('value', $currentLink.attr('href'))
+                  .attr('value', $currentLinkHref)
                   .html($currentLink.html());
+                if ($currentLinkHref == location) {
+                  $option.attr({selected: 'selected'});
+                }
             // append the new option to the select element:
             $select.append($option);
           });
